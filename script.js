@@ -1,10 +1,10 @@
-const flaps = require('./FLAPS.json');
-const egr = require('./EGR.json');
+const flaps = require('./json/FLAPS.json');
+const egr = require('./json/EGR.json');
 const { toDecimalArray, toBuffer, toUnitArray } = require('./utils');
 const { readFile, writeFile } = require('./fileSystem');
 
 // read file and get as array
-let file = readFile('./03G906016B_orig.bin');
+let file = readFile('./bin/03G906016B_orig.bin');
 
 // match all applicable JSON files
 let match1 = matchData(file, flaps, 'flaps');
@@ -20,7 +20,7 @@ let newFile = toUnitArray(finalArr);
 let buffer = toBuffer(newFile);
 
 // write back to bin file
-writeFile('./03G906016B_orig.bin', buffer);
+writeFile('./bin/03G906016B_orig.bin', buffer);
 
 
 // match strings in file to JSON data
