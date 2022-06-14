@@ -3,17 +3,24 @@ const egr = require('./EGR.json');
 const { toDecimalArray, toBuffer, toUnitArray } = require('./utils');
 const { readFile, writeFile } = require('./fileSystem');
 
+// read file and get as array
 let file = readFile('./03G906016B_orig.bin');
+
+// match all applicable JSON files
 let match1 = matchData(file, flaps, 'flaps');
 let match2 = matchData(file, egr, 'egr');
 let matchArr = match1.concat(match2);
+
+// find all bytes that need to be updated
 let diffArr = findDiff(matchArr, flaps, egr);
-// console.log(matchArr, diffArr);
+
+// create array with updated bytes and convert to buffer
 let finalArr = updateFile(file, diffArr, matchArr);
 let newFile = toUnitArray(finalArr);
 let buffer = toBuffer(newFile);
-// console.log(buffer);
-writeFile(buffer);
+
+// write back to bin file
+writeFile('./03G906016B_orig.bin', buffer);
 
 
 // match strings in file to JSON data
@@ -21,9 +28,7 @@ function matchData(file, data, type) {
     let matchArr = [];
     for (let i = 0; i < data.strings.length; i++) {
         let decArr = toDecimalArray(data.strings[i]);
-        let start = 0;
-        let end = 0;
-        let c = 0;
+        let start = 0, end = 0, c = 0;
         for (let j = 0; j < file.length; j++) {
             if (decArr[c] === file[j]) {
                 // matches all bytes in a row
@@ -39,13 +44,14 @@ function matchData(file, data, type) {
                     }
                     matchArr.push(obj);
                     break;
-                    // matches a byte
+                // matches a byte
                 } else {
                     if (c === 0) {
                         start = j;
                     };
                     c++;
-                }
+                };
+            // byte does not match
             } else {
                 if (c !== 0) {
                     j = j - c;
@@ -61,30 +67,23 @@ function matchData(file, data, type) {
 function findDiff(matchArr, flaps, egr) {
     let diffArr = [];
     for (let i = 0; i < matchArr.length; i++) {
-        switch (matchArr[i].type) {
-            case 'flaps':
-                for (let j = 0; j < flaps.strings[matchArr[i].index].length; j++) {
-                    if (flaps.strings[matchArr[i].index][j] !== flaps.RPM[matchArr[i].index][j]) {
-                        diffArr.push({
-                            index: j,
-                            matchIndex: i,
-                            val: flaps.RPM[matchArr[i].index][j]
-                        });
-                    };
-                };
-                break;
-            case 'egr':
-                for (let j = 0; j < egr.strings[matchArr[i].index].length; j++) {
-                    if (egr.strings[matchArr[i].index][j] !== egr.RPM[matchArr[i].index][j]) {
-                        diffArr.push({
-                            index: j,
-                            matchIndex: i,
-                            val: egr.RPM[matchArr[i].index][j]
-                        });
-                    };
-                };
-                break;
-        }
+        // set current JSON type
+        let curr;
+        if (matchArr[i].type === 'flaps') {
+            curr = flaps;
+        } else if (matchArr[i].type === 'egr') {
+            curr = egr;
+        };
+        // populate diffArr
+        for (let j = 0; j < curr.strings[matchArr[i].index].length; j++) {
+            if (curr.strings[matchArr[i].index][j] !== curr.RPM[matchArr[i].index][j]) {
+                diffArr.push({
+                    index: j,
+                    matchIndex: i,
+                    val: curr.RPM[matchArr[i].index][j]
+                });
+            };
+        };
     };
     return diffArr;
 };

@@ -12,8 +12,8 @@ function readFile(fileName) {
 };
 
 // write new hex to bin file
-function writeFile(data) {
-    fs.writeFileSync('./03G906016B_orig.bin', data, {
+function writeFile(fileName, data) {
+    fs.writeFileSync(fileName, data, {
         encoding: 'hex',
         flag: 'w'
     }, function(err) {

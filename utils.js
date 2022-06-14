@@ -32,12 +32,10 @@ function toUnitArray(file) {
     // create new ArrayBuffer and Unit8Array to write to bin
     let newBuff = new ArrayBuffer(file.length);
     let newArr = new Uint8Array(newBuff);
-    
     // add hex to Unit8Array
     for (let i = 0; i < file.length; i++) {
         newArr[i] = file[i];
     };
-
     return newArr.buffer;
 };
 
