@@ -2,9 +2,11 @@ const flaps = require('./json/FLAPS.json');
 const egr = require('./json/EGR.json');
 const { toDecimalArray, toBuffer, toUnitArray } = require('./utils');
 const { readFile, writeFile } = require('./fileSystem');
+// set binary file path
+const binFile = './bin/sample-binary-bin'
 
 // read file and get as array
-let file = readFile('./bin/03G906016B_orig.bin');
+let file = readFile(binFile);
 
 // match all applicable JSON files
 let match1 = matchData(file, flaps, 'flaps');
@@ -20,7 +22,7 @@ let newFile = toUnitArray(finalArr);
 let buffer = toBuffer(newFile);
 
 // write back to bin file
-writeFile('./bin/03G906016B_orig.bin', buffer);
+writeFile(binFile, buffer);
 
 
 // match strings in file to JSON data
